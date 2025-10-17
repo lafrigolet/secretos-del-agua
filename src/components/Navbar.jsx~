@@ -1,0 +1,273 @@
+import React, { useState } from "react";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
+
+export default function Navbar({ logo, menuItems }) {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeMobileItem, setActiveMobileItem] = useState(null);
+
+  const toggleMobileMenu = () => {
+    const newState = !isMobileMenuOpen;
+    setIsMobileMenuOpen(newState);
+
+    // ✅ Select first option when menu opens
+    if (newState && menuItems.length > 0) {
+      setActiveMobileItem(menuItems[0].label);
+    }
+  };
+
+  const handleMobileItemClick = (item) => {
+    setActiveMobileItem(item.label);
+  };
+
+  return (
+    <div>
+      {/* === NAVBAR === */}
+      <nav className="fixed top-0 left-0 w-full h-[44px] border-b border-black bg-black z-50 flex items-center justify-between px-4 md:px-12">
+        {/* LEFT: Hamburger (mobile only) */}
+        <button
+          className="text-white hover:text-gray-400 transition block md:hidden"
+          onClick={toggleMobileMenu}
+        >
+          {isMobileMenuOpen ? (
+            <CloseIcon fontSize="small" />
+          ) : (
+            <MenuIcon fontSize="small" />
+          )}
+        </button>
+
+        {/* CENTER: Logo */}
+        <a
+          href="https://www.secretosdelagua.com/"
+          className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none"
+        >
+          <img
+            src={logo}
+            alt="Secretos del Agua"
+            className="h-6 md:h-7 w-auto object-contain"
+          />
+        </a>
+
+        {/* DESKTOP MENU */}
+        <ul className="hidden md:flex space-x-5">
+          {menuItems.map((item) => (
+            <li key={item.label} className="relative group">
+              <a
+                href={item.href || "#"}
+                onMouseEnter={
+                  item.dropdown
+                    ? () => {
+                        setActiveDropdown(item.dropdown);
+                        setIsOverlayVisible(true);
+                      }
+                    : () => {
+                        setActiveDropdown(null);
+                        setIsOverlayVisible(false);
+                      }
+                }
+                onMouseLeave={() => {
+                  if (!item.dropdown) setIsOverlayVisible(false);
+                }}
+                className="text-[13px] text-white hover:text-gray-500 transition"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        {/* RIGHT: Icons */}
+        <div className="flex items-center space-x-3">
+          <button className="text-white hover:text-gray-500 transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-4.35-4.35M5.25 10.5a5.25 5.25 0 1110.5 0 5.25 5.25 0 01-10.5 0z"
+              />
+            </svg>
+          </button>
+          <a
+            href="https://www.apple.com/shop/bag"
+            className="text-white hover:text-gray-500 transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 6h12l1 13H5L6 6zm3 0a3 3 0 116 0"
+              />
+            </svg>
+          </a>
+          <a
+            href="https://www.secretosdelagua.com/mi-cuenta/"
+            className="text-white hover:text-gray-500 transition"
+          >
+            <AccountCircleIcon fontSize="small" />
+          </a>
+        </div>
+      </nav>
+
+      {/* === MOBILE MENU (2 columns) === */}
+      <div
+        className={`fixed top-[44px] left-0 w-full bg-black border-b border-gray-800 z-50 transform transition-all duration-300 ease-in-out overflow-hidden md:hidden ${
+          isMobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="grid grid-cols-2 divide-x divide-gray-700">
+          {/* LEFT: main menu items */}
+          <ul className="flex flex-col py-4">
+            {menuItems.map((item) => (
+              <li key={item.label} className="px-4 py-2">
+                <button
+                  onClick={() => handleMobileItemClick(item)}
+                  className="relative group text-[14px] text-gray-300 hover:text-white transition"
+                >
+                  <span
+                    className={`relative inline-block pb-[2px] ${
+                      activeMobileItem === item.label
+                        ? "text-white"
+                        : "group-hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                    {/* Animated underline */}
+                    <span
+                      className={`absolute left-0 bottom-0 h-[1.5px] bg-white transition-all duration-300 ease-out ${
+                        activeMobileItem === item.label
+                          ? "w-full"
+                          : "w-0 group-hover:w-full"
+                      }`}
+                    ></span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* RIGHT: submenu */}
+          <div className="py-4 px-4">
+            {activeMobileItem ? (
+              menuItems
+                .find((item) => item.label === activeMobileItem)
+                ?.dropdown?.map((section) => (
+                  <div key={section.title} className="mb-4">
+                    <h3 className="uppercase text-[12px] font-semibold text-gray-400 mb-1">
+                      {section.title}
+                    </h3>
+                    <ul className="space-y-1">
+                      {section.links.map((link) => (
+                        <li key={link.label}>
+                          <a
+                            href={link.href}
+                            className="block text-[14px] text-gray-200 hover:text-white"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {link.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+            ) : (
+              <p className="text-gray-500 text-sm">
+                Selecciona una categoría →
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* === BLUR BACKGROUND WHEN MOBILE MENU IS OPEN === */}
+      <div
+        className={`fixed inset-0 bg-black/40 transition-all duration-500 ease-out z-40 md:hidden ${
+    isMobileMenuOpen
+      ? "backdrop-blur-sm opacity-100 visible"
+      : "backdrop-blur-0 opacity-0 invisible"
+  }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* === DESKTOP DROPDOWN === */}
+      <div
+        onMouseLeave={() => {
+          setActiveDropdown(null);
+          setIsOverlayVisible(false);
+        }}
+        className={`fixed top-[44px] left-0 w-full bg-black border-b border-black shadow-lg z-40 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          activeDropdown
+            ? "max-h-[400px] opacity-100 translate-y-0"
+            : "max-h-0 opacity-0 -translate-y-2"
+        }`}
+      >
+        {activeDropdown && (
+          <div className="py-8 px-6 md:px-20">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+              {activeDropdown.map((section, idx) => (
+                <div
+                  key={section.title}
+                  className={`transition-all duration-700 ease-out delay-[${idx * 100}ms] ${
+                    activeDropdown
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-2"
+                  }`}
+                >
+                  <h3 className="uppercase text-[12px] font-semibold text-gray-400 mb-2">
+                    {section.title}
+                  </h3>
+                  <ul className="space-y-1">
+                    {section.links.map((link) => (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          className="group relative inline-block text-[14px] text-white"
+                        >
+                          {link.label}
+                          <span className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* === OVERLAY FOR DESKTOP DROPDOWN === */}
+      {isOverlayVisible && (
+        <div
+          className={`fixed inset-0 bg-black/10 backdrop-blur-sm transition-opacity duration-500 z-30 ${
+            activeDropdown ? "opacity-100" : "opacity-0"
+          }`}
+          onMouseEnter={() => {
+            setActiveDropdown(null);
+            setIsOverlayVisible(false);
+          }}
+        />
+      )}
+
+      {/* Spacer for fixed navbar */}
+      <div className="h-[44px]" />
+    </div>
+  );
+}

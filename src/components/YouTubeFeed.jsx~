@@ -1,0 +1,99 @@
+import React, { useEffect, useState } from "react";
+import { Card, CardMedia, CircularProgress, IconButton, Typography } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
+
+export default function YouTubeFeed() {
+  const [videos, setVideos] = useState([]);
+  const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY"; // 🔑 replace this
+  const RAPIDAPI_HOST = "youtube-v31.p.rapidapi.com";
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const res = await fetch(
+          "https://youtube-v31.p.rapidapi.com/search?part=snippet&q=tech%20news&maxResults=10",
+          {
+            headers: {
+              "x-rapidapi-key": RAPIDAPI_KEY,
+              "x-rapidapi-host": RAPIDAPI_HOST,
+            },
+          }
+        );
+        const data = await res.json();
+        setVideos(data.items || []);
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVideos();
+  }, []);
+
+  const nextVideo = () => setIndex((prev) => (prev + 1) % videos.length);
+  const prevVideo = () => setIndex((prev) => (prev - 1 + videos.length) % videos.length);
+
+  // Autoplay every 8s
+  useEffect(() => {
+    const interval = setInterval(nextVideo, 8000);
+    return () => clearInterval(interval);
+  }, [videos]);
+
+  if (loading) return <CircularProgress className="m-10" />;
+
+  return (
+    <div className="relative w-full max-w-5xl mx-auto flex flex-col items-center justify-center p-4">
+      <Typography variant="h5" className="text-center mb-4 font-semibold text-gray-700">
+        🎥 YouTube Feed
+      </Typography>
+
+      <div className="relative w-full overflow-hidden rounded-2xl shadow-lg">
+        <AnimatePresence mode="wait">
+          {videos.length > 0 && (
+            <motion.div
+              key={videos[index].id.videoId}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.6 }}
+              className="w-full"
+            >
+              <Card className="w-full">
+                <CardMedia
+                  component="iframe"
+                  src={`https://www.youtube.com/embed/${videos[index].id.videoId}`}
+                  title={videos[index].snippet.title}
+                  allowFullScreen
+                  className="w-full h-[400px] md:h-[500px] rounded-2xl"
+                />
+              </Card>
+              <div className="mt-3 text-center">
+                <Typography variant="subtitle1" className="font-semibold text-gray-800">
+                  {videos[index].snippet.title}
+                </Typography>
+                <Typography variant="body2" className="text-gray-500">
+                  {videos[index].snippet.channelTitle}
+                </Typography>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Controls */}
+      <div className="flex justify-between items-center w-full mt-4">
+        <IconButton onClick={prevVideo} color="primary">
+          <ArrowBackIos />
+        </IconButton>
+        <div className="text-sm text-gray-500">{index + 1} / {videos.length}</div>
+        <IconButton onClick={nextVideo} color="primary">
+          <ArrowForwardIos />
+        </IconButton>
+      </div>
+    </div>
+  );
+}
