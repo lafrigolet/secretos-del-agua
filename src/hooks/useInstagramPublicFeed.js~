@@ -1,0 +1,51 @@
+import { useEffect, useState, useCallback } from "react";
+
+const API_HOST = "instagram-scraper-api2.p.rapidapi.com";
+const API_KEY = "YOUR_RAPIDAPI_KEY"; // ← Replace with your key
+
+export default function useInstagramPublicFeed(username = "nasa") {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchFeed = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        `https://${API_HOST}/v1.1/posts?username_or_id_or_url=${username}`,
+        {
+          headers: {
+            "x-rapidapi-host": API_HOST,
+            "x-rapidapi-key": API_KEY,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch Instagram feed");
+
+      const json = await res.json();
+      const items = (json.data?.items || [])
+        .filter((item) => item.media_type === "VIDEO")
+        .map((item) => ({
+          id: item.id,
+          videoUrl: item.video_url,
+          caption: item.caption?.text || "",
+          thumbnail: item.thumbnail_url,
+        }));
+
+      setPosts(items);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [username]);
+
+  useEffect(() => {
+    fetchFeed();
+  }, [fetchFeed]);
+
+  return { posts, loading, error, refetch: fetchFeed };
+}
