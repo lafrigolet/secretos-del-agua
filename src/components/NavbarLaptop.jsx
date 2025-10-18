@@ -1,6 +1,9 @@
 // src/components/NavbarLaptop.jsx
 import React from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import StoreGrid from "./StoreGrid";
+import Basket from "./Basket";
+import { useBasket } from "../context/BasketContext";
 
 export default function NavbarLaptop({
   logo,
@@ -10,6 +13,9 @@ export default function NavbarLaptop({
   isOverlayVisible,
   setIsOverlayVisible,
 }) {
+  const { basket } = useBasket();
+  const basketCount = basket.reduce((sum, item) => sum + item.quantity, 0);
+  
   return (
     <>
       <nav className="fixed top-0 left-0 w-full h-[44px] border-b border-black bg-primary z-50 flex items-center justify-between px-12 hidden md:flex">
@@ -31,13 +37,13 @@ export default function NavbarLaptop({
                 onMouseEnter={
                   item.dropdown
                     ? () => {
-                        setActiveDropdown(item.dropdown);
-                        setIsOverlayVisible(true);
-                      }
-                    : () => {
-                        setActiveDropdown(null);
-                        setIsOverlayVisible(false);
-                      }
+                      setActiveDropdown(item.dropdown);
+                      setIsOverlayVisible(true);
+                    }
+                  : () => {
+                    setActiveDropdown(null);
+                    setIsOverlayVisible(false);
+                  }
                 }
                 onMouseLeave={() => {
                   if (!item.dropdown) setIsOverlayVisible(false);
@@ -71,9 +77,18 @@ export default function NavbarLaptop({
           </button>
 
           {/* Bag */}
-          <a
-            href="https://www.apple.com/shop/bag"
-            className="text-white hover:text-gray-500 transition"
+          <button
+            onClick={() => {
+              // toggle basket dropdown
+              if (activeDropdown === "basket") {
+                setActiveDropdown(null);
+                setIsOverlayVisible(false);
+              } else {
+                setActiveDropdown("basket");
+                setIsOverlayVisible(true);
+              }
+            }}
+            className="text-white hover:text-gray-500 transition relative"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -89,8 +104,15 @@ export default function NavbarLaptop({
                 d="M6 6h12l1 13H5L6 6zm3 0a3 3 0 116 0"
               />
             </svg>
-          </a>
 
+            {/* Item count badge */}
+            {basketCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                {basketCount}
+              </span>
+            )}
+          </button>
+          
           {/* Account */}
           <a
             href="https://www.secretosdelagua.com/mi-cuenta/"
@@ -102,44 +124,75 @@ export default function NavbarLaptop({
       </nav>
 
       {/* Desktop dropdown */}
-      <div
-        onMouseLeave={() => {
-          setActiveDropdown(null);
-          setIsOverlayVisible(false);
-        }}
-        className={`fixed top-[44px] left-0 w-full bg-primary border-b border-black shadow-lg z-40 overflow-hidden transition-all duration-500 ease-in-out ${
+      {activeDropdown && (activeDropdown === "basket" ? (
+        <div
+          onMouseLeave={() => {
+            setActiveDropdown(null);
+            setIsOverlayVisible(false);
+          }}
+          className={`fixed top-[44px] right-0 w-[400px] p-8 bg-primary border-b border-black shadow-lg z-40 overflow-hidden transition-all duration-500 ease-in-out ${
           activeDropdown
-            ? "max-h-[400px] opacity-100 translate-y-0"
+            ? "h-[75vh] opacity-100 translate-y-0"
             : "max-h-0 opacity-0 -translate-y-2"
         }`}
-      >
-        {activeDropdown && (
-          <div className="py-8 px-20">
-            <div className="max-w-6xl mx-auto grid grid-cols-3 gap-8">
-              {activeDropdown.map((section, idx) => (
-                <div key={section.title}>
-                  <h3 className="uppercase text-[12px] font-semibold text-gray-400 mb-2">
-                    {section.title}
-                  </h3>
-                  <ul className="space-y-1">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a
-                          href={link.href}
-                          className="group relative inline-block text-[14px] text-white"
-                        >
-                          {link.label}
-                          <span className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+        >
+          <Basket />
+        </div>
+      ) : (
+        /* Regular store dropdown with menu + StoreGrid + Basket */
+        <div
+          onMouseLeave={() => {
+            setActiveDropdown(null);
+            setIsOverlayVisible(false);
+          }}
+          className={`fixed top-[44px] left-0 w-full bg-primary border-b border-black shadow-lg z-40 overflow-hidden transition-all duration-500 ease-in-out ${
+          activeDropdown
+            ? "max-h-[75vh] opacity-100 translate-y-0"
+            : "max-h-0 opacity-0 -translate-y-2"
+        }`}
+        >
+          
+          <div className="py-8 px-10 h-[75vh]">
+            <div className="max-w-7xl mx-auto h-full">
+              <div className="flex flex-row gap-0.5 items-stretch h-full">
+                {/* Menu list */}
+                <div className="w-1/6 pr-4">
+                  {activeDropdown.map((section) => (
+                    <div key={section.title} className="mb-6">
+                      <h3 className="uppercase text-[12px] font-semibold text-gray-400 mb-2">
+                        {section.title}
+                      </h3>
+                      <ul className="space-y-1">
+                        {section.links.map((link) => (
+                          <li key={link.label}>
+                            <a
+                              href={link.href}
+                              className="group relative inline-block text-[14px] text-white"
+                            >
+                              {link.label}
+                              <span className="absolute left-0 bottom-0 h-[1px] w-0 bg-white transition-all duration-300 ease-out group-hover:w-full"></span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                
+                {/* StoreGrid */}
+                <div className="flex-1 bg-primary">
+                  <StoreGrid />
+                </div>
+                
+                {/* Basket */}
+                <div className="w-1/4 bg-primary max-h-[75vh]">
+                  <Basket />
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ))}
 
       {/* Overlay */}
       {isOverlayVisible && (

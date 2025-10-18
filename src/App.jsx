@@ -6,6 +6,7 @@ import ProductGrid from "./components/ProductGrid";
 import Footer from "./components/Footer";
 import InstagramFeed from "./components/InstagramFeed";
 import YouTubeFeed from "./components/YouTubeFeed";
+import { BasketProvider } from "./context/BasketContext";
 
 import homeInfoActive from './assets/homeinfoactiv.png';
 import homeFaceOtono from './assets/Home_face_otono.png';
@@ -152,30 +153,32 @@ const products = [
 export default function App() {
   return (
     <div className="bg-secondary text-gray-900">
-      <Navbar logo={logoWhite} menuItems={menuItems} />
-      <SectionPromotion
-        title="FUERZA Contra la Caída"
-        subtitle="Este otoño protege tu cabello con el Infoactivo Fuerza, diseñado para frenar la caída estacional."
-        image={homeInfoActive}
-      />
-      <ProductGrid products={products} />
-      <SectionPromotion
-        title="RITUAL de Calma y Renovación"
-        subtitle="Este otoño... mima tu piel con nuestra línea de cuidado facial."
-        image={homeFaceOtono}
-      />
-      <SectionPromotion
-        title="OTOÑO en Equilibrio"
-        subtitle="Regálale a tu piel el confort diario de nuestra línea Bodycare"
-        image={homeBodyOtono}
-      />
-      <SectionPromotion
-        title="RECONECTA con lo esencial"
-        subtitle="Por la compra del Restaurador Biolaminar 200 ml, una Crema Regeneradora 10 ml de REGALO."
-        image={homeRest}
-      />
-      <InstagramFeed username="secretosdelagua" />
-      <Footer storeSections={[...storeSections, legal]} />
+      <BasketProvider>
+        <Navbar logo={logoWhite} menuItems={menuItems} />
+        <SectionPromotion
+          title="FUERZAS Contra la Caída"
+          subtitle="Este otoño protege tu cabello con el Infoactivo Fuerza, diseñado para frenar la caída estacional."
+          image={homeInfoActive}
+        />
+        <ProductGrid products={products} />
+        <SectionPromotion
+          title="RITUAL de Calma y Renovación"
+          subtitle="Este otoño... mima tu piel con nuestra línea de cuidado facial."
+          image={homeFaceOtono}
+        />
+        <SectionPromotion
+          title="OTOÑO en Equilibrio"
+          subtitle="Regálale a tu piel el confort diario de nuestra línea Bodycare"
+          image={homeBodyOtono}
+        />
+        <SectionPromotion
+          title="RECONECTA con lo esencial"
+          subtitle="Por la compra del Restaurador Biolaminar 200 ml, una Crema Regeneradora 10 ml de REGALO."
+          image={homeRest}
+        />
+        <InstagramFeed username="secretosdelagua" />
+        <Footer storeSections={[...storeSections, legal]} />
+      </BasketProvider>
     </div>
   );
 }
