@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/secretos-del-agua/sw.js', { scope: '/secretos-del-agua/' })})}
