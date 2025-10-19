@@ -6,6 +6,7 @@ import ProductGrid from "./components/ProductGrid";
 import Footer from "./components/Footer";
 import InstagramFeed from "./components/InstagramFeed";
 import YouTubeFeed from "./components/YouTubeFeed";
+import ChatAsesor from "./components/ChatAsesor";
 
 import homeInfoActive from './assets/homeinfoactiv.png';
 import homeFaceOtono from './assets/Home_face_otono.png';
@@ -153,6 +154,7 @@ export default function App() {
   return (
     <div className="bg-secondary text-gray-900">
       <Navbar logo={logoWhite} menuItems={menuItems} />
+      <ChatAsesor />
       <SectionPromotion
         title="FUERZA Contra la Caída"
         subtitle="Este otoño protege tu cabello con el Infoactivo Fuerza, diseñado para frenar la caída estacional."

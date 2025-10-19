@@ -82,3 +82,25 @@ Make sure your compiled CSS is included in the <head> (your framework might hand
 </body>
 </html>
 ```
+
+# Chatbot
+## Files 
+mi-proyecto/
+│
+├── index.html
+├── vite.config.js
+├── package.json
+│
+├── src/                     # Frontend React/Vite
+│   ├── main.jsx
+│   └── components/
+│       └── Chatbot.jsx
+│
+└── server/                  # 👈 Backend Node.js
+    ├── server.js            # Punto de entrada del backend
+    ├── chatbot/
+    │   ├── embeddings.js    # Carga y vectorización del contenido
+    │   ├── chain.js         # Configura LangChain + OpenAI
+    │   └── routes.js        # Rutas de la API (chat, carrito, etc.)
+    └── package.json         # Dependencias del servidor
+
